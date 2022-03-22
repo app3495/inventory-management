@@ -1,0 +1,31 @@
+﻿Product Table 
+id
+code 
+name 
+description
+price_id (default price_id)
+unit_id (defalut unit_id)
+
+Price Table
+id 
+name
+
+Unit Table 
+id
+name
+
+type  table 
+id 
+name
+
+Inventory Table 
+id
+date 
+type (in out)
+doc_no
+description 
+product_id
+qty
+unit_id
+price_id
+
