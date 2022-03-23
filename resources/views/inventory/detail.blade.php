@@ -36,42 +36,23 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ol>
+                    @foreach ($errors->all() as $error)
+                        <li class="text-danger">{{ $error }} </li>
+                    @endforeach
+                </ol>
+                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+         @endif
 
-    @if ($errors->has("code.*") || $errors->has("name.*") || $errors->has("unit.*") || $errors->has("qty.*")
-            || $errors->has("price.*"))
 
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <ol>
-                @for ($i = 1; $i <= count(old("code")) ; $i++)
-
-                    @if ($errors->has("code.$i"))
-                        <li class="text-danger">Row {{ $i }} Product code is required.</li>
-                    @endif
-
-                    @if ($errors->has("name.$i"))
-                        <li class="text-danger">Row {{ $i }} Product is invalid. Please check again product.</li>
-                    @endif
-
-                    @if ($errors->has("unit.$i"))
-                        <li class="text-danger">Row {{ $i }} Product unit not yet select.</li>
-                        @if ($errors->has("price.$i"))
-                    @endif
-
-                        <li class="text-danger">Row {{ $i }} Product price is required and must be greater than zero. </li>
-                    @endif
-
-                    @if ($errors->has("qty.$i"))
-                        <li class="text-danger">Row {{ $i }} Product quanttiy is required and must be greater than zero. </li>
-                    @endif
-
-                @endfor
-            </ol>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <form action="{{ url('/inventory/edit/'. $inventory[0]->inventory_id)}}" method="post" id="data-form">
+    <form action="{{ url("/inventory/". $inventory[0]->inventory_id)}}" method="post" id="data-form">
         @csrf
+
+        <input type="hidden" name="type_id" value="{{ $inventory[0]->type_id }}">
+
         <div class="form-group row mb-4" >
             <label for="doc_no" class="col-sm-2 col-form-label">Document No :</label>
             <div class="col-sm-4">
@@ -168,7 +149,7 @@
                     @foreach ($inventory as $item)
                         <tr>
                             <td>
-                                <input list="productCode" name="code[{{ $counter }}]"  id="code[{{ $counter }}]" class="form-control" value="{{ $item->code }}"  onkeyup="getProductName(1)" readonly required>
+                                <input list="productCode" name="code[{{ $counter }}]"  id="code[{{ $counter }}]" class="form-control" value="{{ $item->code }}"  onkeyup="getProductName({{ $counter }})" readonly required>
                             </td>
                             <td>
                                 <input list="productName" name="name[{{$counter}}]" id="name[{{$counter}}]" class="form-control" value="{{ $item->name }}" readonly>

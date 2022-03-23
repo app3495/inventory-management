@@ -4,7 +4,6 @@
 
 <div class="px-2">
 
-    {{-- menu box  --}}
     <div class="mt-0 mb-4">
 
         @if ($header === "Stock In")
@@ -30,43 +29,19 @@
     </div>
     @endif
 
-    @if ($errors->has("code.*") || $errors->has("name.*") || $errors->has("unit.*") || $errors->has("qty.*")
-            || $errors->has("price.*"))
 
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <ol>
-                @for ($i = 1; $i <= count(old("code")) ; $i++)
-                    {{-- {{ $errors }} --}}
-                    @if ($errors->has("code.$i"))
-                        <li class="text-danger">Row {{ $i }} Product code is required.</li>
-                    @endif
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ol>
 
-                    @if ($errors->has("name.$i"))
-                        <li class="text-danger">Row {{ $i }} Product is invalid. Please check again product.</li>
-                    @endif
+                    @foreach ($errors->all() as $error)
+                        <li class="text-danger">{{ $error }} </li>
+                    @endforeach
+                </ol>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
-                    @if ($errors->has("unit.$i"))
-                        <li class="text-danger">Row {{ $i }} Product unit not yet select.</li>
-                    @endif
-
-                    @if ($errors->has("price.$i"))
-                        <li class="text-danger">Row {{ $i }} Product price is required and must be greater than zero. </li>
-                    @endif
-
-                    @if ($errors->has("qty.$i"))
-                        <li class="text-danger">Row {{ $i }} Product quanttiy is required and must be greater than zero. </li>
-                    @endif
-
-
-                    @if ($errors->has("product.$i"))
-                        <li class="text-danger">{{ $errors->first("product.$i") }} </li>
-                    @endif
-
-                @endfor
-            </ol>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
 
     <form action="{{ url('/inventory/create/'. $type_id)}}" method="post" id="data-form">
         @csrf
@@ -233,11 +208,11 @@ function calculate_total() {
 };
 
 window.onload = calculate_total();
+const data = {!! json_encode($products, JSON_HEX_TAG) !!};
 
 //get product name
 function getProductName(i) {
     var searchCode = document.getElementById("code["+ i  +"]").value;
-    var data = {!! json_encode($products, JSON_HEX_TAG) !!};
 
     if (searchCode.length < 1) {
         document.getElementById("name["+ i  +"]").value = "";
@@ -264,13 +239,18 @@ $(document).ready(function(){
         for (i = 1; i <= cellCount; i++) {
             new_td = $("#product_table tbody tr:first-child td:nth-child(" + i + ")").clone();
 
-            // new_td_data = new_td.find('input').length ?  new_td.find('input') : new_td.find('select');
-
             if (new_td.find('input').length){
                 new_td_data = new_td.find('input');
                 new_td_data.val("");
             } else {
                 new_td_data = new_td.find('select');
+            }
+
+
+            if (i == 1) {
+                old_keyup_value = new_td_data.attr('onkeyup');
+                new_keyup_value = old_keyup_value.slice(0, -3) + "("+ count +")";
+                new_td_data.attr('onkeyup', new_keyup_value);
             }
 
             old_td_name = new_td_data.attr('name');

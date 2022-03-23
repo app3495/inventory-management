@@ -32,4 +32,4 @@ Route::get('/inventory/stockBalance', 'InventoryController@index');
 Route::post('/inventory/delete/{id}', 'InventoryController@delete');
 Route::get('/inventory/{id}', 'InventoryController@detail');
 Route::post('/inventory/{id}', 'InventoryController@updateDb');
-Route::get('/inventory/{header}', 'InventoryController@returnBack');
+// Route::get('/inventory/{header}', 'InventoryController@returnBack');
