@@ -7,10 +7,18 @@
     <div class="mt-0 mb-4">
         <a href="{{ url("/inventory/create/". $inventory[0]->type_id) }}" class="btn btn btn-primary ">New</a>
 
-        <a href="#" class="btn btn-success mx-1" id="editButton">Edit</a>
-        <a href="{{ url('/inventory/edit/'. $inventory[0]->inventory_id)}}" class="btn btn-success d-none mx-1" id="saveButton"
-            onclick="event.preventDefault();
-                document.getElementById('data-form').submit();">Save</a>
+        @if ($errors->any())
+            <a href="#" class="btn btn-success mx-1 d-none" id="editButton">Edit</a>
+            <a href="{{ url('/inventory/edit/'. $inventory[0]->inventory_id)}}" class="btn btn-success mx-1 " id="saveButton"
+                onclick="event.preventDefault();
+                    document.getElementById('data-form').submit();">Save</a>
+        @else
+            <a href="#" class="btn btn-success mx-1 " id="editButton">Edit</a>
+            <a href="{{ url('/inventory/edit/'. $inventory[0]->inventory_id)}}" class="btn btn-success mx-1 d-none" id="saveButton"
+                onclick="event.preventDefault();
+                    document.getElementById('data-form').submit();">Save</a>
+        @endif
+
 
         @if ($header === "Stock In")
             <a href="{{ url("/inventory/stockIn") }}" class="btn px-3 btn-secondary mx-1">List</a>
@@ -56,7 +64,7 @@
         <div class="form-group row mb-4" >
             <label for="doc_no" class="col-sm-2 col-form-label">Document No :</label>
             <div class="col-sm-4">
-                <input type="text" name="doc_no" id="doc_no" class="form-control" value="{{ old('doc_no', $inventory[0]->doc_no ) }}" readonly required  >
+                <input type="text" name="doc_no" id="doc_no" class="form-control" value="{{ old('doc_no', $inventory[0]->doc_no ) }}" {{ $errors->any() ? "" : "readonly"}}>
                 @if ($errors->has('doc_no'))
                     <p class="text-danger">{{ $errors->first('doc_no') }}</p>
                 @endif
@@ -64,7 +72,7 @@
 
             <label for="date" class="col-sm-2 col-form-label" >Date :</label>
             <div class="col-sm-4">
-                <input type="date" name="date" id="date" class="form-control" value="{{ old('date', $inventory[0]->date) }}" readonly required>
+                <input type="date" name="date" id="date" class="form-control" value="{{ old('date', $inventory[0]->date) }}" {{ $errors->any() ? "" : "readonly"}} required>
                 @if ($errors->has('date'))
                     <p class="text-danger">{{ $errors->first('date') }}</p>
                 @endif
@@ -74,7 +82,7 @@
         <div class="form-group row mb-4">
             <label for="description" class="col-sm-2 col-form-label">Description :</label>
             <div class="col-sm-10">
-                <textarea type="text" name="description" id="description" class="form-control" readonly>{{ old('description', $inventory[0]->main_description) }}</textarea>
+                <textarea type="text" name="description" id="description" class="form-control"  {{ $errors->any() ? "" : "readonly"}} >{{ old('description', $inventory[0]->main_description) }}</textarea>
                 @if ($errors->has('description'))
                     <p class="text-danger">{{ $errors->first('description') }}</p>
                 @endif
@@ -87,7 +95,7 @@
 
         <datalist id="productCode">
             @foreach ($products as $item)
-                <option value="{{ $item->code }}">
+            <option value="{{ $item->code }}">
             @endforeach
         </datalist>
         <datalist id="productName">
@@ -187,8 +195,15 @@
             <tfoot>
                 <tr>
                     <td colspan="2">
-                        <button class="add-row btn-sm btn-primary me-3 d-none" type="button">Add Row</button>
-                        <button class="del-row btn-sm btn-danger d-none" type="button">Del Row</button>
+
+                        @if ($errors->any())
+                            <button class="add-row btn-sm btn-primary me-3" type="button">Add Row</button>
+                            <button class="del-row btn-sm btn-danger" type="button">Del Row</button>
+
+                        @else
+                            <button class="add-row btn-sm btn-primary me-3 d-none" type="button">Add Row</button>
+                            <button class="del-row btn-sm btn-danger d-none" type="button">Del Row</button>
+                        @endif
                     </td>
                     <td colspan="2" class="text-end fs-3">Total</td>
                     <td class="text-end fs-3" id="totalQty"></td>
@@ -279,6 +294,12 @@ $(document).ready(function(){
                 new_td_data = new_td.find('select');
             }
 
+            if (i == 1) {
+                old_keyup_value = new_td_data.attr('onkeyup');
+                new_keyup_value = old_keyup_value.slice(0, -3) + "("+ count +")";
+                new_td_data.attr('onkeyup', new_keyup_value);
+            }
+
             old_td_name = new_td_data.attr('name');
             new_td_value = old_td_name.slice(0, -3) + "["+ count +"]";
             new_td_data.attr('name', new_td_value);
@@ -302,6 +323,8 @@ $(document).ready(function(){
         } else {
             $("table tbody tr:last-child").remove();
         }
+
+        calculate_total();
     })
 
     //edit button
@@ -324,7 +347,8 @@ $(document).ready(function(){
         $(".add-row").removeClass("d-none");
         $(".del-row").removeClass("d-none");
 
-    })
+    });
+
 })
 </script>
 

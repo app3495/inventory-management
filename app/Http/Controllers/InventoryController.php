@@ -51,7 +51,27 @@ class InventoryController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $this->saveInventory($request, $type_id);
+        // save inventory into db
+        $inventory = new Inventory;
+        $inventory->date = $request->date;
+        $inventory->type_id = $type_id;
+        $inventory->description = $request->description;
+        $inventory->doc_no = $request->doc_no;
+        $inventory->save();
+
+        // save inventory_lines into db
+        for ($i = 1; $i <= count($request->code); $i++)
+        {
+            $product_id = Product::where('code', '=', $request->code[$i])->first();
+
+            $inventory_line[$i] = new InventoryLine;
+            $inventory_line[$i]->inventory_id = $inventory->id;
+            $inventory_line[$i]->product_id = $product_id->id;
+            $inventory_line[$i]->qty = $request->qty[$i];
+            $inventory_line[$i]->unit_id = $request->unit[$i];
+            $inventory_line[$i]->price = $request->price[$i];
+            $inventory_line[$i]->save();
+        }
 
         return back()->with(['success' => '1']);
     }
@@ -97,6 +117,7 @@ class InventoryController extends Controller
                     {
                         $res[$i]['qty'] -= $item->qty;
                     }
+
                     break;
                 }
 
@@ -178,7 +199,8 @@ class InventoryController extends Controller
     {
         $type_id = Inventory::where('id', $id)->first()->type_id;
 
-        $this->deleteInventory($id);
+        Inventory::where('id', $id)->delete();
+        InventoryLine::where('inventory_id', $id)->delete();
 
         if ($type_id === 1) return redirect('/inventory/stockIn')->with('delete', '1');
         if ($type_id === 2) return redirect('/inventory/stockOut')->with('delete', '1');
@@ -201,12 +223,48 @@ class InventoryController extends Controller
         return $data;
     }
 
-    public function updateDb($id, $request)
+    public function updateDb($id, Request $request)
     {
+        $validator = $this->validateInput($request);
 
-        $this->validateInput($request);
-        $this->deleteInventory($id);
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
 
+        $inventory = Inventory::find($id);
+        $inventory->doc_no = $request->doc_no;
+        $inventory->date = $request->date;
+        $inventory->description = $request->description;
+        $inventory->save();
+
+        $old_lines = InventoryLine::select('id')->where('inventory_id', '=', $id)->get()->toArray();
+
+
+        // save inventory_line
+        for ($i=1; $i <= count($request->code); $i++)
+        {
+            $line_id = array_shift($old_lines);
+
+            $product_id = Product::where('code', '=', $request->code[$i])->first();
+
+            $inventory_line = $line_id ? InventoryLine::find($line_id['id']) : new InventoryLine;
+            $inventory_line->inventory_id = $id;
+            $inventory_line->product_id = $product_id->id;
+            $inventory_line->qty = $request->qty[$i];
+            $inventory_line->unit_id = $request->unit[$i];
+            $inventory_line->price = $request->price[$i];
+            $inventory_line->save();
+        }
+
+        // delete inventory_line
+        for ($i=1; $i <= count($old_lines); $i++)
+        {
+            $removed_id = array_shift($old_lines);
+
+            InventoryLine::where('id', $removed_id['id'])->delete();
+        }
+
+        return back();
     }
 
     private function validateInput(Request $request)
@@ -222,38 +280,6 @@ class InventoryController extends Controller
         ]);
 
         return $validator;
-    }
-
-    private function saveInventory(Request $request, $type_id)
-    {
-        // save inventory into db
-        $inventory = new Inventory;
-        $inventory->date = $request->date;
-        $inventory->type_id = $type_id;
-        $inventory->description = $request->description;
-        $inventory->doc_no = $request->doc_no;
-        $inventory->save();
-
-        // save inventory_lines into db
-        for ($i = 1; $i <= count($request->code); $i++)
-        {
-            $product_id = Product::where('code', '=', $request->code[$i])->first();
-
-            $inventory_line[$i] = new InventoryLine;
-            $inventory_line[$i]->inventory_id = $inventory->id;
-            $inventory_line[$i]->product_id = $product_id->id;
-            $inventory_line[$i]->qty = $request->qty[$i];
-            $inventory_line[$i]->unit_id = $request->unit[$i];
-            $inventory_line[$i]->price = $request->price[$i];
-            $inventory_line[$i]->save();
-        }
-    }
-
-
-    private function deleteInventory($id)
-    {
-        Inventory::where('id', $id)->delete();
-        InventoryLine::where('inventory_id', $id)->delete();
     }
 
 
