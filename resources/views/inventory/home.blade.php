@@ -4,6 +4,7 @@
     <div>
         <h2 class="text-primary">{{ $header }}</h2>
     </div>
+    <hr>
 
     <div>
         <table class="table table-hover">
@@ -14,16 +15,20 @@
                 <th scope="col">Name</th>
                 <th scope="col" class="text-end">Quantity</th>
                 <th scope="col" class="text-center">Unit</th>
-              </tr>
+                <th style="width: 40px"></th>
+            </tr>
             </thead>
             <tbody>
                 @foreach ($data as $product)
                     <tr>
-                        <td>{{ $product['id'] }}</td>
+                        <td>{{ $product['id']+1 }}</td>
                         <td>{{ $product['code'] }}</td>
                         <td>{{ $product['name'] }}</td>
                         <td class="text-end">{{ number_format($product['qty']) }}</td>
                         <td class="text-center">{{ $product['unit'] }}</td>
+                        <td class="text-center">
+                            <a href="{{ url("/inventory/stockBalance/detail/" . $product['product_id'] . "/" . $product['unit_id']) }}" class="btn btn-sm btn-success">Detail</a>
+                        </td>
                      </tr>
                 @endforeach
 

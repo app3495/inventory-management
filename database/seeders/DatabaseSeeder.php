@@ -23,7 +23,40 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // \App\Models\User::factory(10)->create();
-        Product::factory()->count(5)->create();
+        // Product::factory()->count(5)->create();
+
+
+        Product::factory()->create([
+            'code' => "001",
+            'name' => "Biogesic",
+            'description' => 'for illness good.',
+        ]);
+
+        Product::factory()->create([
+            'code' => "002",
+            'name' => "Oramin-G",
+            'description' => 'for men',
+        ]);
+
+        Product::factory()->create([
+            'code' => "003",
+            'name' => "Oramin-F",
+            'description' => 'for women',
+        ]);
+
+        Product::factory()->create([
+            'code' => "004",
+            'name' => "Air-x",
+            'description' => 'for stomach',
+        ]);
+
+        Product::factory()->create([
+            'code' => "005",
+            'name' => "Liv-up",
+            'description' => 'good for alcoholist',
+        ]);
+
+
 
         Unit::factory()->create([
             "code" => "pc" ,

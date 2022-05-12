@@ -4,6 +4,11 @@
 
 <div class="px-2">
 
+    <div class="my-3">
+        <h1 class="h1 text-bold text-primary"> {{ $header }} Detail Information</h1>
+    </div>
+    <hr>
+
     <div class="mt-0 mb-4">
 
         @if ($header === "Stock In")
@@ -16,11 +21,9 @@
             onclick="event.preventDefault();
                 document.getElementById('data-form').submit();">Save & Submit</a>
     </div>
-    <hr>
 
-    <div class="my-3">
-        <h1 class="h1 text-bold text-center text-primary"> {{ $header }} Detail Information</h1>
-    </div>
+
+
 
     @if (Session::has('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">

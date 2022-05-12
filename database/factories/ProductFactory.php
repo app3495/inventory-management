@@ -17,7 +17,6 @@ class ProductFactory extends Factory
             'code' => substr($this->faker->name, 0, 4),
             'name' => $this->faker->name,
             'description' => substr($this->faker->paragraph, 0, 30),
-            'price' => rand(100, 20000),
         ];
     }
 }

@@ -94,7 +94,7 @@ class InventoryController extends Controller
 
         foreach ($data as $item)
         {
-            for ($i = 1; $i <= count($data); $i++ )
+            for ($i = 0; $i < count($data); $i++ )
             {
                 if (! array_key_exists($i, $res))
                 {
@@ -206,22 +206,6 @@ class InventoryController extends Controller
         if ($type_id === 2) return redirect('/inventory/stockOut')->with('delete', '1');
     }
 
-    private function getInventory(Request $request, $id)
-    {
-        $data = DB::table('inventory_lines')
-                        ->select( 'inventories.id','inventories.date','inventories.doc_no',
-                            'inventories.description', 'inventory_lines.inventory_id',
-                            DB::raw('SUM(inventory_lines.qty) as qty'),
-                            DB::raw('SUM(inventory_lines.qty * inventory_lines.price) as total'),)
-                        ->leftjoin ('inventories', 'inventory_lines.inventory_id', '=', 'inventories.id')
-                        ->groupBy ('inventory_lines.inventory_id')
-                        ->where ('inventories.type_id', '=', $id )
-                        ->orderBy ('inventories.created_at', 'desc')
-                        ->orderBy('inventory_lines.id', 'desc')
-                        ->paginate(10);
-        $data->appends($request->all());
-        return $data;
-    }
 
     public function updateDb($id, Request $request)
     {
@@ -267,6 +251,60 @@ class InventoryController extends Controller
         return back();
     }
 
+    public function stockBalanceDetail($product_id, $product_unit) {
+        $data = InventoryLine::select('*', 'units.name as unit', 'products.code as code',
+                                'products.name as name', 'inventories.description as description')
+                            ->where('product_id', '=',  $product_id)
+                            ->where('unit_id', '=', $product_unit)
+                            ->leftJoin('inventories', 'inventory_lines.inventory_id', '=', 'inventories.id' )
+                            ->leftJoin('products', 'inventory_lines.product_id', '=', 'products.id')
+                            ->leftJoin('units', 'inventory_lines.unit_id', '=', 'units.id')
+                            ->get()
+                            ->toArray();
+
+        $bal = 0;
+        $count = count($data);
+        for ($i=0; $i < $count; $i++) {
+            if ($data[$i]['type_id'] === 1) {
+                $bal += $data[$i]['qty'];
+            }
+            elseif ($data[$i]['type_id'] === 2) {
+                $bal -= $data[$i]['qty'];
+            }
+            $data[$i]['bal'] = $bal;
+        }
+
+        $product["code"] = $data[0]['code'];
+        $product["name"] = $data[0]['name'];
+        $product["unit"] = $data[0]['unit'];
+
+        $result = $this->paginate($items = $data, $perPage = 10, null,
+            ['path' => url("inventory/stockBalance/detail/$product_id/$product_unit")] );
+
+
+        return view('inventory.stockDetail')->with([
+            'data' => $result,
+            'product' => $product,
+        ]);
+    }
+
+    private function getInventory(Request $request, $id)
+    {
+        $data = DB::table('inventory_lines')
+                        ->select( 'inventories.id','inventories.date','inventories.doc_no',
+                            'inventories.description', 'inventory_lines.inventory_id',
+                            DB::raw('SUM(inventory_lines.qty) as qty'),
+                            DB::raw('SUM(inventory_lines.qty * inventory_lines.price) as total'),)
+                        ->leftjoin ('inventories', 'inventory_lines.inventory_id', '=', 'inventories.id')
+                        ->groupBy ('inventory_lines.inventory_id')
+                        ->where ('inventories.type_id', '=', $id )
+                        ->orderBy ('inventories.created_at', 'desc')
+                        ->orderBy('inventory_lines.id', 'desc')
+                        ->paginate(10);
+        $data->appends($request->all());
+        return $data;
+    }
+
     private function validateInput(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -274,7 +312,7 @@ class InventoryController extends Controller
             'date' => 'required',
             'description' => 'required',
             'code.*' => 'required|exists:App\Models\Product,code',
-            'price.*' => 'required|numeric|gt:0',
+            'price.*' => 'required|numeric|gte:0',
             'unit.*' => 'required|numeric|gt:0',
             'qty.*' => 'required|numeric|gt:0',
         ]);

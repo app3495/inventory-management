@@ -27,7 +27,25 @@ Route::get('/inventory/create/{type_id}', 'InventoryController@create');
 Route::post('/inventory/create/{type_id}', 'InventoryController@createDb');
 Route::get('/inventory/stockIn', 'InventoryController@stockIn');
 Route::get('/inventory/stockOut', 'InventoryController@stockOut');
-Route::get('/inventory/stockBalance', 'InventoryController@index');
 Route::post('/inventory/delete/{id}', 'InventoryController@delete');
-Route::get('/inventory/{id}', 'InventoryController@detail');
-Route::post('/inventory/{id}', 'InventoryController@updateDb');
+Route::get('/inventory/update/{id}', 'InventoryController@detail');
+Route::post('/inventory/update/{id}', 'InventoryController@updateDb');
+Route::get('/inventory/stockBalance', 'InventoryController@index');
+Route::get('/inventory/stockBalance/detail/{prouduct_id}/{product_unit}', 'InventoryController@stockBalanceDetail');
+
+Route::get('/products', 'ProductController@index');
+Route::get('/products/create', 'ProductController@create');
+Route::post('/products/create', 'ProductController@store');
+Route::get('/products/{id}', 'ProductController@detail');
+Route::post('/products/{id}', 'ProductController@update');
+Route::post('/products/delete/{id}', 'ProductController@destroy');
+
+Route::get('/units', 'UnitController@index');
+Route::get('/units/create', 'UnitController@create');
+Route::post('/units/create', 'UnitController@store');
+Route::get('/units/{id}', 'UnitController@detail');
+Route::post('/units/{id}', 'UnitController@update');
+Route::post('/units/delete/{id}', 'UnitController@destroy');
+
+Route::get('/changePassword', 'HomeController@getChangePassword');
+Route::post('/changePassword', 'HomeController@storeChangePw');

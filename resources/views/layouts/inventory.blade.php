@@ -10,8 +10,8 @@
     <title>Duwon Inventory Management</title>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
     <script src="{{ asset('js/jquery.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}" defer></script>
 
 
     <!-- Fonts -->
@@ -51,36 +51,36 @@
                             Stock Out
                         </a>
                     </li>
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         <a class="nav-link text-white" href="">
                             Stock Unit Convention
                         </a>
-                    </li>
+                    </li> --}}
                 </ul>
                 <hr />
 
                 <h5 class="text-center">Configuration</h5>
                 <ul class="navbar-nav px-3 ms-auto mt-3 mb-2 mb-lg-0 fs-6">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="" >
+                        <a class="nav-link text-white" href="{{ url('/products') }}" >
                             Products
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="">Units</a>
+                        <a class="nav-link text-white" href="{{ url('/units') }}">Units</a>
                     </li>
                 </ul>
                 <hr />
 
                 <h5 class="text-center">Admin Setting</h5>
                 <ul class="navbar-nav px-3 ms-auto mt-3 mb-2 mb-lg-0 fs-6">
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         <a class="nav-link text-white" href="" >
                             Change username
                         </a>
-                    </li>
+                    </li> --}}
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="">Change password</a>
+                        <a class="nav-link text-white" href="{{ url('/changePassword') }}">Change password</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('logout') }}"
@@ -98,8 +98,8 @@
 			</nav> <!-- Left Side Nav -->
 
 
-            <main class="col-10 mt-4">
-                <div class="p-2">
+            <main class="col-10 py-3 px-5">
+                <div>
                     @yield('content')
                 </div>
             </main>
